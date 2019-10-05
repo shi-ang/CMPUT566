@@ -1,0 +1,118 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Chapter 5 Bias and Variance Trade off}
+\author{shiang }
+\date{October 2019}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{fancyhdr,multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{marginnote}
+
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Based on the last lecture, we have the MLE and MAP estimator for the weights:
+\begin{equation}\label{MLE}
+    \begin{aligned}
+        \mathbf{w}_{\text{MLE}}(\mathcal{D}) = (\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}} \mathbf{y}
+    \end{aligned}
+\end{equation}
+
+\begin{equation}\label{MAP}
+    \begin{aligned}
+        \mathbf{w}_{\text{MAP}}(\mathcal{D}) = (\mathbf{X}^{\mathrm{T}} \mathbf{X} + \lambda \mathbb{I})^{-1} \mathbf{X}^{\mathrm{T}} \mathbf{y}
+    \end{aligned}
+\end{equation}
+and the label and input has the relationship of:
+\begin{equation}
+    \begin{aligned}
+        \mathbf{y}_{n\times 1} = \mathbf{X}_{n\times d} \mathbf{w}_{d\times 1} + \boldsymbol{\varepsilon}_{n\times 1}
+    \end{aligned}
+\end{equation}
+where the noise $\boldsymbol{\varepsilon}$ follows a zero-mean Gaussian distribution: $\boldsymbol{\varepsilon}: \mathcal{N}(0, \sigma^2)$
+
+\textbf{Question}
+Is the random variable unbiased?
+
+\section{Bias of MLE and MAP}
+\subsection{Bias for MLE}
+\begin{equation}
+    \begin{aligned}
+        \mathbb{E}[\mathbf{w}_{\text{MLE}}(\mathcal{D})] = \mathbb{E}[(\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}} \mathbf{y}]
+    \end{aligned}
+\end{equation}
+
+\begin{equation}
+    \begin{aligned}
+        \mathbb{E}[\mathbf{w}_{\text{MLE}}(\mathcal{D})] 
+        &= \mathbb{E}[(\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}} (\mathbf{Xw} + \boldsymbol{\varepsilon})]\\
+        &= \mathbb{E}[(\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}} \mathbf{X} \mathbf{w}] + \mathbb{E}[(\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}} \boldsymbol{\varepsilon}]\\
+        &= \mathbb{E}[\mathbf{w}] + \mathbb{E}[(\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}}] \mathbb{E}[\boldsymbol{\varepsilon}]\\
+        &= \mathbb{E}[\mathbf{w}] = \mathbf{w}
+    \end{aligned}
+\end{equation}
+where the term $(\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}}$ is also called the pseudo-inverse of $\mathbf{X}$, which can be denoted as $\mathbf{X}^{\dag}$. The Equation (\ref{MLE}) can be shorten as:
+\marginnote{because $(\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}} \times \mathbf{X} = \mathbb{I}$}
+\begin{equation}
+    \begin{aligned}
+        \mathbf{w}_{\text{MLE}}(\mathcal{D}) 
+        &= (\mathbf{X}^{\mathrm{T}} \mathbf{X})^{-1} \mathbf{X}^{\mathrm{T}} (\mathbf{X}\mathbf{w} + \boldsymbol{\varepsilon})\\
+        &= \mathbf{w} + \mathbf{X}^{\dag} \boldsymbol{\varepsilon}
+    \end{aligned}
+\end{equation}
+
+\subsection{Bias for MAP}
+
+\begin{equation}
+    \begin{aligned}
+        \mathbb{E}[\mathbf{w}_{\text{MAP}}(\mathcal{D})] 
+        &= \mathbb{E}[(\mathbf{X}^{\mathrm{T}} \mathbf{X} + \lambda \mathbb{I})^{-1} \mathbf{X}^{\mathrm{T}} \mathbf{y}]\\
+        &= \mathbb{E}[(\mathbf{X}^{\mathrm{T}} \mathbf{X} + \lambda \mathbb{I})^{-1} \mathbf{X}^{\mathrm{T}} (\mathbf{Xw} + \boldsymbol{\varepsilon})]\\
+        &= \mathbb{E}[(\mathbf{X}^{\mathrm{T}} \mathbf{X} + \lambda \mathbb{I})^{-1} \mathbf{X}^{\mathrm{T}} \mathbf{X}]\mathbf{w}\\
+        &\neq \mathbf{w}
+    \end{aligned}
+\end{equation}
+In the above equation, $(\mathbf{X}^{\mathrm{T}} \mathbf{X} + \lambda \mathbb{I})^{-1} \mathbf{X}^{\mathrm{T}} \mathbf{X} \neq \mathbb{I}$. Therefore, the expect value of the MAP estimation $\mathbb{E}[\mathbf{w}_{\text{MAP}}(\mathcal{D})] \neq \mathbf{w}$
+
+\subsection{Compare}
+\begin{equation}
+    \begin{aligned}
+        \text{Bias}(\mathbf{w}_{\text{MLE}}(\mathcal{D}))^2 = ||\mathbb{E}[\mathbf{w}_{\text{MLE}}(\mathcal{D})] - \mathbf{w}||^2 = 0\\
+        \text{Bias}(\mathbf{w}_{\text{MAP}}(\mathcal{D}))^2 = ||\mathbb{E}[\mathbf{w}_{\text{MAP}}(\mathcal{D})] - \mathbf{w}||^2 \neq 0
+    \end{aligned}
+\end{equation}
+For MLE estimator, the random variable is unbiased.
+
+\section{Variance}
+\begin{equation}\label{MLE covariance}
+    \begin{aligned}
+        \text{Cov}(\mathbf{w}_{\text{MLE}}(\mathcal{D})) 
+        &= \mathbb{E}[(\mathbf{w}_{\text{MLE}}(\mathcal{D}) - \mathbf{w})_{d\times 1} (\mathbf{w}_{\text{MLE}}(\mathcal{D}) - \mathbf{w})_{1\times d}^{\mathrm{T}}]\\
+        &= \mathbb{E}[\mathbf{w}_{\text{MLE}}(\mathcal{D}) \mathbf{w}_{\text{MLE}}(\mathcal{D})^{\mathrm{T}}] - \mathbf{w}\mathbf{w}^{\mathrm{T}}\\
+        &= \mathbb{E}[(\mathbf{w} + \mathbf{X}^{\dag} \boldsymbol{\varepsilon})(\mathbf{w} + \mathbf{X}^{\dag} \boldsymbol{\varepsilon})^{\mathrm{T}}] - \mathbf{w}\mathbf{w}^{\mathrm{T}}\\
+        &= \mathbb{E}[\mathbf{w} \mathbf{w}^{\mathrm{T}}] + \mathbb{E}[\mathbf{x}^{\dag} \boldsymbol{\varepsilon} \mathbf{w}^{\mathrm{T}}] + \mathbb{E}[\mathbf{w} (\mathbf{x}^{\dag} \boldsymbol{\varepsilon})^{\mathrm{T}}] + \mathbb{E}[\mathbf{x}^{\dag} \boldsymbol{\varepsilon} (\mathbf{x}^{\dag} \boldsymbol{\varepsilon})^{\mathrm{T}}] - \mathbf{w}\mathbf{w}^{\mathrm{T}}\\
+        &= \mathbb{E}[\mathbf{w} \mathbf{w}^{\mathrm{T}}] +  \mathbb{E}[\mathbf{x}^{\dag}] \mathbb{E}[\boldsymbol{\varepsilon}] \mathbf{w}^{\mathrm{T}} + \mathbf{w} \mathbb{E}[(\boldsymbol{\varepsilon})^{\mathrm{T}}] \mathbb{E}[(\mathbf{x}^{\dag})^{\mathrm{T}}] + \mathbb{E}[\mathbf{x}^{\dag} \boldsymbol{\varepsilon} (\mathbf{x}^{\dag} \boldsymbol{\varepsilon})^{\mathrm{T}}] - \mathbf{w}\mathbf{w}^{\mathrm{T}}\\
+        &= \mathbf{w} \mathbf{w}^{\mathrm{T}} + \mathbb{E}[\mathbf{x}^{\dag} \boldsymbol{\varepsilon} (\mathbf{x}^{\dag} \boldsymbol{\varepsilon})^{\mathrm{T}}] - \mathbf{w}\mathbf{w}^{\mathrm{T}}\\
+    \end{aligned}
+\end{equation}
+Now because the noise terms are independent of the inputs, $\mathbb{E}[\boldsymbol{\varepsilon} \boldsymbol{\varepsilon}^{\mathrm{T}}|\mathbf{X}] = \mathbb{E}[\boldsymbol{\varepsilon} \boldsymbol{\varepsilon}^{\mathrm{T}}] = \mathbb{E}[\boldsymbol{\varepsilon} \boldsymbol{\varepsilon}^{\mathrm{T}}] - \mathbb{E}[\boldsymbol{\varepsilon}] \mathbb{E}[\boldsymbol{\varepsilon}]^{\mathrm{T}} = \text{cov}(\boldsymbol{\varepsilon}) = \sigma^{2}\mathbb{I}$. Equation (\ref{MLE covariance}) can be expressed as:
+\begin{equation}
+    \begin{aligned}
+        \text{Cov}(\mathbf{w}_{\text{MLE}}(\mathcal{D})) 
+        &= \mathbb{E}[\mathbf{x}^{\dag} \boldsymbol{\varepsilon} \boldsymbol{\varepsilon}^{\mathrm{T}} \mathbf{x}^{\dag \mathrm{T}} ]\\
+        &= \mathbb{E}[\mathbb{E}[\mathbf{X}^{\dag} \boldsymbol{\varepsilon} \boldsymbol{\varepsilon}^{\mathrm{T}} \mathbf{X}^{\dag \mathrm{T}}|\mathbf{X}]]\\
+        &= \mathbb{E}[\mathbf{X}^{\dag} \mathbb{E}[\boldsymbol{\varepsilon} \boldsymbol{\varepsilon}^{\mathrm{T}} |\mathbf{X}] \mathbf{X}^{\dag \mathrm{T}}]\\
+        &= \sigma^2 \mathbb{E}[\mathbf{X}^{\dag} \mathbf{X}^{\dag \mathrm{T}}]\\
+        &= \sigma^2 \mathbb{E}[\sum_{j=1}^{r} \frac{\mathbf{V}_j \mathbf{V}_j^{\mathrm{T}}}{\sigma_j^2}]
+    \end{aligned}
+\end{equation}
+
+\end{document}

@@ -1,0 +1,126 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Chapter 6 Gradient Descent}
+\author{Shiang Qi}
+\date{October 2019}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{fancyhdr,multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{marginnote}
+
+
+\begin{document}
+
+\maketitle
+
+To conduct gradient descent, we can define a cost plus a regularizer function $c:\mathbb{R}^{d} \xrightarrow{} \mathbb{R}$. In order to minimize this cost function $c(\mathbf{w})$, we have to make the partial derivative function  $\nabla c(\mathbf{w}) = 0$. 
+
+\section{One Dimension Sample}
+
+
+We can think simpler as dimension equals to $1$, we can use Taylor approximation to express this cost function:
+\begin{equation}
+    \begin{aligned}
+        c(w) = \sum_{n=0}^{\infty} \frac{c^{(n)}(w_0)}{n!}(w-w_0)^{n}
+    \end{aligned}
+\end{equation}
+
+If we start the gradient descent with some random $w_0$, and consider the second order Taylor series as the approximation function:
+
+\begin{equation}\label{2order function}
+    \begin{aligned}
+        c(w) \approx \hat{c}(w) = c(w_0) + (w-w_0)c^{\prime}(w_0) + \frac{1}{2} (w-w_0)^{2}c^{\prime \prime}(w_0)
+    \end{aligned}
+\end{equation}
+
+Then we can take the derivation of $w$ to the function and make it equal to 0 to find the stationary point:
+\begin{equation}
+    \begin{aligned}
+        \frac{\mathrm{d}\hat{c_0}(w)}{\mathrm{d}w} = 0 + c^{\prime}(w_0) + (w-w_0)c^{\prime \prime}(w_0) = 0
+    \end{aligned}
+\end{equation}
+
+
+\begin{equation}\label{2order update}
+    \begin{aligned}
+        \Rightarrow w_1 = w_0 - \frac{c^{\prime}(w_0)}{c^{\prime \prime}(w_0)}
+    \end{aligned}
+\end{equation}
+
+This $w_1$ is not the global minima point for the cost function for now. To eventually obtain the stationary point, we would use the following update function multiple times to approximate the true global minima:
+\begin{equation}
+    \begin{aligned}
+        w_{t+1} = w_t - \frac{1}{c^{\prime \prime}(w_t)}c^{\prime}(w_t)
+    \end{aligned}
+\end{equation}
+
+However, the second derivation of the cost function $c^{\prime \prime}(w_0)$ in Equation (\ref{2order function}) is hard to calculate. Alternatively, we would consider the first order Taylor approximation instead:
+\begin{equation}
+    \begin{aligned}
+        c(w) \approx \hat{c}(w) = c(w_0) + (w-w_0)c^{\prime}(w_0) + \frac{1}{2\eta} (w-w_0)^{2}
+    \end{aligned}
+\end{equation}
+
+The last term in above equation is to approximate the last term in Equation (\ref{2order function}). By conducting an partial derivation of the cost function, we can obtain a simpler update function:
+\begin{equation}\label{1order update}
+    \begin{aligned}
+        w_{t+1} = w_t - \eta c^{\prime}(w_t)
+    \end{aligned}
+\end{equation}
+
+Comparing the first order update Equation (\ref{1order update}) to the second order update Equation (\ref{2order update}), we can define a new parameter stepsize:
+\begin{equation}
+    \begin{aligned}
+        \text{Stepsize} = 
+        \left\{
+            \begin{array}{lr}
+            \eta & \text{First order update function}\\[3ex]
+            \frac{1}{c^{\prime \prime}(w_t)} & \text{Second order update function}
+            \end{array}
+        \right.
+    \end{aligned}
+\end{equation}
+
+
+\section{Multiple Dimension Sample}
+For the multiple dimensional features/weights, the second order Taylor approximation can be expressed as:
+\begin{equation}\label{1order update multi}
+    \begin{aligned}
+        c(\mathbf{w}) = \hat{c}(\mathbf{w}_0) = c(\mathbf{w}) + \nabla c(\mathbf{w}_0)^{\mathrm{T}}(\mathbf{w}-\mathbf{w}_0) + \frac{1}{2}(\mathbf{w}-\mathbf{w}_0)^{\mathrm{T}}\mathbf{H}_{c(\mathbf{w}_0)}(\mathbf{w}-\mathbf{w}_0)
+    \end{aligned}
+\end{equation}
+where 
+\begin{equation}
+    \begin{aligned}
+        \nabla c(\mathbf{w}_0) = 
+        \begin{bmatrix}
+            \frac{\partial c(\mathbf{w}_0)}{\partial w_1} \\
+            \frac{\partial c(\mathbf{w}_0)}{\partial w_2} \\
+            \vdots\\
+            \frac{\partial c(\mathbf{w}_0)}{\partial w_d} \\
+        \end{bmatrix}
+        \quad \in \mathbb{R}^d
+    \end{aligned}
+\end{equation}
+is the gradient of cost function at $\mathbf{w}_0$, and
+\begin{equation}
+    \begin{aligned}
+        \mathbf{H}_{c(\mathbf{w}_0)} = 
+        \begin{bmatrix}
+            \frac{\partial^2 c(\mathbf{w}_0)}{\partial w_1^2}   &   \ldots  &   \frac{\partial^2 c(\mathbf{w}_0)}{\partial w_1 \partial w_d}\\
+            \vdots  &   \ddots  &   \vdots\\
+            \frac{\partial^2 c(\mathbf{w}_0)}{\partial w_d \partial w_1}   &   \ldots  &   \frac{\partial^2 c(\mathbf{w}_0)}{\partial w_d^2}\\
+        \end{bmatrix}
+        \quad \in \mathbb{R}^{d\times d}
+    \end{aligned}
+\end{equation}
+is the Hessian matrix of function $c(\mathbf{w})$ at $\mathbf{w_0}$. In Equation (\ref{1order update multi}), the gradient term can be rewrite as the following format:
+$$\nabla c(\mathbf{w}_0)^{\mathrm{T}}(\mathbf{w}-\mathbf{w}_0) = \sum_{j=1}^{d}\frac{\partial c(\mathbf{w}_0)}{\partial w_j}(w_j-\mathbf{w}_0 [j])$$
+and the Hessian term can be rewrite as:
+$$\frac{1}{2}(\mathbf{w}-\mathbf{w}_0)^{\mathrm{T}}\mathbf{H}_{c(\mathbf{w}_0)}(\mathbf{w}-\mathbf{w}_0) = ||\mathbf{w}-\mathbf{w}_0||^2\mathbf{H}_{c(\mathbf{w}_0)}$$
+
+\end{document}
